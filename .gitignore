@@ -48,3 +48,18 @@ service-registry/.factorypath
 service-registry/.gitignore
 service-registry/src/main/resources/application.yaml
 service-registry/bin
+
+### STS for auth-service###
+auth-service/.mvn
+auth-service/.settings
+auth-service/.classpath
+auth-service/.gitattributes
+auth-service/.project
+auth-service/HELP.md
+auth-service/mvnw
+auth-service/mvnw.cmd
+auth-service/target
+auth-service/.factorypath
+auth-service/.gitignore
+auth-service/src/main/resources/application.properties
+auth-service/bin
