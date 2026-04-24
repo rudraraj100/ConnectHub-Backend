@@ -78,3 +78,19 @@ room-service/.factorypath
 room-service/.gitignore
 room-service/src/main/resources/application.properties
 room-service/bin
+
+
+### STS for room-service###
+message-service/.mvn
+message-service/.settings
+message-service/.classpath
+message-service/.gitattributes
+message-service/.project
+message-service/HELP.md
+message-service/mvnw
+message-service/mvnw.cmd
+message-service/target
+message-service/.factorypath
+message-service/.gitignore
+message-service/src/main/resources/application.properties
+message-service/bin
