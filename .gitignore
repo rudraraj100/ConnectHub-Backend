@@ -124,3 +124,19 @@ presence-service/.factorypath
 presence-service/.gitignore
 presence-service/src/main/resources/application.properties
 presence-service/bin
+
+
+### STS for notification-service###
+notification-service/.mvn
+notification-service/.settings
+notification-service/.classpath
+notification-service/.gitattributes
+notification-service/.project
+notification-service/HELP.md
+notification-service/mvnw
+notification-service/mvnw.cmd
+notification-service/target
+notification-service/.factorypath
+notification-service/.gitignore
+notification-service/src/main/resources/application.properties
+notification-service/bin
