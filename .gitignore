@@ -109,3 +109,18 @@ media-service/.factorypath
 media-service/.gitignore
 media-service/src/main/resources/application.properties
 media-service/bin
+
+### STS for presence-service###
+presence-service/.mvn
+presence-service/.settings
+presence-service/.classpath
+presence-service/.gitattributes
+presence-service/.project
+presence-service/HELP.md
+presence-service/mvnw
+presence-service/mvnw.cmd
+presence-service/target
+presence-service/.factorypath
+presence-service/.gitignore
+presence-service/src/main/resources/application.properties
+presence-service/bin
