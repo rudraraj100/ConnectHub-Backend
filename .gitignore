@@ -80,7 +80,7 @@ room-service/src/main/resources/application.properties
 room-service/bin
 
 
-### STS for room-service###
+### STS for message-service###
 message-service/.mvn
 message-service/.settings
 message-service/.classpath
@@ -94,3 +94,18 @@ message-service/.factorypath
 message-service/.gitignore
 message-service/src/main/resources/application.properties
 message-service/bin
+
+### STS for media-service###
+media-service/.mvn
+media-service/.settings
+media-service/.classpath
+media-service/.gitattributes
+media-service/.project
+media-service/HELP.md
+media-service/mvnw
+media-service/mvnw.cmd
+media-service/target
+media-service/.factorypath
+media-service/.gitignore
+media-service/src/main/resources/application.properties
+media-service/bin

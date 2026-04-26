@@ -39,7 +39,7 @@ import java.util.Set;
  */
 @Slf4j
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE + 1)   // CorsFilter runs first at HIGHEST_PRECEDENCE
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)   // After Spring's built-in CORS handling (globalcors in YAML)
 public class JwtGatewayFilter extends OncePerRequestFilter {
 
     /** Headers the gateway injects — clients must NOT be allowed to forge these. */
@@ -76,9 +76,17 @@ public class JwtGatewayFilter extends OncePerRequestFilter {
                                     FilterChain chain)
             throws ServletException, IOException {
 
-        // Pre-flight OPTIONS — let it pass (CORS preflight; no token needed)
+        String origin = request.getHeader("Origin");
+
+        // ── Set CORS headers immediately — must be BEFORE chain.doFilter() ──
+        // Once the response body starts streaming, headers are already committed
+        // and cannot be added. No @CrossOrigin on any downstream service, so
+        // there is no risk of duplicate Access-Control-Allow-Origin headers.
+        setCorsHeaders(response, origin);
+
+        // ── Pre-flight OPTIONS: respond immediately, no auth needed ──────────
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            chain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_OK);
             return;
         }
 
@@ -115,15 +123,26 @@ public class JwtGatewayFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Build enriched request — strip client-supplied identity headers and inject validated ones
         String userId = claims.get("userId", String.class);
         String email  = claims.getSubject();
-
         log.debug("[Gateway] Authenticated userId={} email={} → {}", userId, email, path);
 
         HttpServletRequest enriched = new HeaderMutatingRequest(request, userId, email);
         chain.doFilter(enriched, response);
     }
+
+    /** Sets full CORS header suite on every response. */
+    private void setCorsHeaders(HttpServletResponse response, String origin) {
+        if (origin == null) return;
+        response.setHeader("Access-Control-Allow-Origin",      origin);
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Access-Control-Allow-Methods",     "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers",     "Authorization,Content-Type,X-User-Id,X-Requested-With");
+        response.setHeader("Access-Control-Expose-Headers",    "Authorization,X-User-Id");
+        response.setHeader("Access-Control-Max-Age",           "3600");
+        response.setHeader("Vary",                             "Origin");
+    }
+
 
     // ── Helpers ──────────────────────────────────────────────────────
 
