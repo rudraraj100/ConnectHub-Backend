@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        EC2_HOST      = 'ec2-user@13.63.37.252'
+        EC2_HOST      = 'ec2-user@172.31.41.14'
         SERVICES_DIR  = '/home/connecthub/services'
         KEY_FILE      = 'ec2-prod-ssh-key'
     }
