@@ -1,0 +1,28 @@
+# ── Production overrides for notification-service ──
+
+spring:
+  # Note: prod DB is connecthub_notifications (created in Step 7 MySQL setup)
+  datasource:
+    url: jdbc:mysql://localhost:3306/connecthub_notifications?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: connecthub
+    password: ${DB_PASSWORD}
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  mail:
+    username: rudrar2002@gmail.com
+    password: ${MAIL_PASSWORD}
+
+# Eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    com.notification_service: INFO

@@ -1,0 +1,18 @@
+# ── Local Developer Credentials Template ───────────────────────────────
+# Copy this file to application-local.properties and fill in real values.
+# application-local.properties is GITIGNORED — safe to put real secrets there.
+
+# Local MySQL
+DB_PASSWORD_LOCAL=YOUR_LOCAL_MYSQL_PASSWORD
+DB_USERNAME_LOCAL=root
+
+# JWT (any string works locally — must match api-gateway)
+JWT_SECRET=ConnectHub_LocalDev_Secret_256bit_NotForProduction
+
+# Gmail App Password — generate at: myaccount.google.com/apppasswords
+MAIL_PASSWORD=YOUR_GMAIL_APP_PASSWORD
+MAIL_USERNAME=YOUR_GMAIL_ADDRESS
+
+# Google OAuth2 — get from console.cloud.google.com -> Credentials
+GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET

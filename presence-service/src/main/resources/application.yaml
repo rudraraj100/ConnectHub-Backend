@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: presence-service
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 1
+
+server:
+  port: 8085
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# How long (seconds) a user is considered ONLINE after their last heartbeat
+# Frontend sends a ping every 20s; TTL is 35s to handle slight network delay
+app:
+  presence:
+    ttl-seconds: 35
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  # NOTE: Do NOT override api-docs.path.
+  # The default /v3/api-docs is what the API Gateway aggregator routes expect.
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    com.presence_service: DEBUG

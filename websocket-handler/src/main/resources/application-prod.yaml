@@ -1,0 +1,20 @@
+# ── Production overrides for websocket-handler ──
+
+# Internal service URLs — all co-located on same EC2 instance
+app:
+  services:
+    message-service:      http://localhost:8083
+    presence-service:     http://localhost:8085
+    notification-service: http://localhost:8086
+    room-service:         http://localhost:8082
+
+# Eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    com.websocket_handler: INFO
+    org.springframework.web.socket: WARN

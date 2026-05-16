@@ -1,0 +1,40 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: websocket-handler
+
+# Eureka
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# Downstream service base URLs (called via RestTemplate)
+app:
+  services:
+    message-service:    http://localhost:8083
+    presence-service:   http://localhost:8085
+    notification-service: http://localhost:8086
+    room-service:       http://localhost:8082
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.websocket_handler: DEBUG
+    org.springframework.web.socket: INFO

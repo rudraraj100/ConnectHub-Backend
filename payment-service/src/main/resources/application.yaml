@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: payment-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/connecthub_payments?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME_LOCAL:root}
+    password: ${DB_PASSWORD_LOCAL:rudra@root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    open-in-view: false
+
+server:
+  port: 8088
+
+# ── Razorpay ────────────────────────────────────────────────────────────────
+# Replace these with your actual Razorpay test/live keys from the dashboard.
+# Test keys start with rzp_test_  |  Live keys start with rzp_live_
+razorpay:
+  key-id: ${RAZORPAY_KEY_ID:rzp_test_REPLACE_ME}
+  key-secret: ${RAZORPAY_KEY_SECRET:REPLACE_ME}
+  currency: INR
+  # Premium subscription price in paise (1 INR = 100 paise)
+  # ₹499/month → 49900 paise
+  premium-amount: 49900
+
+# ── Feign: auth-service base URL ─────────────────────────────────────────────
+# Payment-service calls auth-service DIRECTLY (not through the gateway) to
+# upgrade user.plan after a verified payment. This is safe because port 8081
+# is only reachable within the internal network / localhost.
+auth:
+  service:
+    url: http://localhost:8081
+
+# ── Eureka ──────────────────────────────────────────────────────────────────
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+
+# ── Actuator ────────────────────────────────────────────────────────────────
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# ── Swagger / OpenAPI ────────────────────────────────────────────────────────
+springdoc:
+  # NOTE: Do NOT override api-docs.path.
+  # The default /v3/api-docs is what the API Gateway aggregator routes expect.
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  level:
+    com.payment_service: DEBUG
+    com.razorpay: INFO

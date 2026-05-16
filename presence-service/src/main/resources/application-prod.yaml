@@ -1,0 +1,17 @@
+# ── Production overrides for presence-service ──
+
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# Eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    com.presence_service: INFO

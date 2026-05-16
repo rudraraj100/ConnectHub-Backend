@@ -1,0 +1,26 @@
+# ── Production overrides for media-service ──
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/connecthub_media?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: connecthub
+    password: ${DB_PASSWORD}
+
+# S3 — enabled in production (uses EC2 IAM Role, no access keys needed)
+app:
+  media:
+    s3:
+      enabled: true
+      region: ${AWS_REGION:eu-north-1}
+      bucket: ${S3_BUCKET:connecthub-media-897201144971-eu-north-1-an}
+    base-url: http://connecthub.duckdns.org   # Gateway base URL for building public media URLs
+
+# Eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    com.media_service: INFO

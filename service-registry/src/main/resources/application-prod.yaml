@@ -1,0 +1,20 @@
+# ── Production overrides for service-registry ──
+spring:
+  application:
+    name: service-registry
+
+server:
+  port: 8761
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+  instance:
+    hostname: localhost     # services are co-located on the same EC2 instance
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

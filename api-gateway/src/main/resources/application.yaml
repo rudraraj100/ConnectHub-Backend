@@ -1,0 +1,193 @@
+server:
+  port: 8080
+
+# Swagger UI Aggregator Configuration
+springdoc:
+  swagger-ui:
+    urls:
+      - name: Auth Service
+        url: /auth/v3/api-docs
+      - name: Room Service
+        url: /rooms/v3/api-docs
+      - name: Message Service
+        url: /messages/v3/api-docs
+      - name: Media Service
+        url: /media/v3/api-docs
+      - name: Presence Service
+        url: /presence/v3/api-docs
+      - name: Notification Service
+        url: /notifications/v3/api-docs
+      - name: Payment Service
+        url: /payments/v3/api-docs
+
+spring:
+  application:
+    name: api-gateway
+
+  # Redis — shared with auth-service to read suspended: keys
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cloud:
+    gateway:
+      # ── Global CORS ────────────────────────────────────────────────────────
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns:
+              - "http://localhost:4200"
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+
+      # ── Routes ────────────────────────────────────────────────────────────
+      routes:
+        - id: auth-docs
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/v3/api-docs
+          filters:
+            - RewritePath=/auth/v3/api-docs, /v3/api-docs
+        - id: room-docs
+          uri: http://localhost:8082
+          predicates:
+            - Path=/rooms/v3/api-docs
+          filters:
+            - RewritePath=/rooms/v3/api-docs, /v3/api-docs
+        - id: message-docs
+          uri: http://localhost:8083
+          predicates:
+            - Path=/messages/v3/api-docs
+          filters:
+            - RewritePath=/messages/v3/api-docs, /v3/api-docs
+        - id: media-docs
+          uri: http://localhost:8084
+          predicates:
+            - Path=/media/v3/api-docs
+          filters:
+            - RewritePath=/media/v3/api-docs, /v3/api-docs
+        - id: presence-docs
+          uri: http://localhost:8085
+          predicates:
+            - Path=/presence/v3/api-docs
+          filters:
+            - RewritePath=/presence/v3/api-docs, /v3/api-docs
+        - id: notification-docs
+          uri: http://localhost:8086
+          predicates:
+            - Path=/notifications/v3/api-docs
+          filters:
+            - RewritePath=/notifications/v3/api-docs, /v3/api-docs
+        - id: payment-docs
+          uri: http://localhost:8088
+          predicates:
+            - Path=/payments/v3/api-docs
+          filters:
+            - RewritePath=/payments/v3/api-docs, /v3/api-docs
+
+        # Auth Service
+        - id: auth-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/**
+
+        # OAuth2
+        - id: auth-oauth2
+          uri: http://localhost:8081
+          predicates:
+            - Path=/oauth2/**
+
+        - id: auth-oauth2-callback
+          uri: http://localhost:8081
+          predicates:
+            - Path=/login/oauth2/**
+
+        # Room Service
+        - id: room-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/rooms/**
+
+        # Message Service
+        - id: message-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/messages/**
+
+        # Media Service
+        - id: media-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/media/**
+
+        # Presence Service
+        - id: presence-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/presence/**
+
+        # Notification Service — REST
+        - id: notification-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/notifications/**
+
+        # Notification Service — WebSocket
+        - id: notification-ws
+          uri: ws://localhost:8086
+          predicates:
+            - Path=/ws-notifications/**
+
+        # WebSocket Handler — STOMP
+        - id: websocket-handler
+          uri: ws://localhost:8087
+          predicates:
+            - Path=/ws/**
+
+        # Payment Service
+        - id: payment-service
+          uri: http://localhost:8088
+          predicates:
+            - Path=/payments/**
+
+# JWT secret — must match auth-service
+app:
+  jwt:
+    secret: ${JWT_SECRET:ConnectHub_LocalDev_Secret_256bit_NotForProduction}
+
+# Eureka
+eureka:
+  client:
+    enabled: true
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    org.springframework.security: WARN

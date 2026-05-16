@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.5.13</version>
+		<relativePath/>
+	</parent>
+	<groupId>com.connecthub</groupId>
+	<artifactId>room-service</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>ConnectHub :: Room Service</name>
+	<description>
+		Room/Channel management, membership, message history,
+		real-time STOMP messaging and Room Admin operations for ConnectHub.
+	</description>
+	<properties>
+		<java.version>17</java.version>
+		<spring-cloud.version>2025.0.2</spring-cloud.version>
+	</properties>
+	<dependencies>
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<!-- SPRING BOOT CORE                                            -->
+		<!-- Exposes REST: /rooms /rooms/{id}/members /rooms/{id}/messages -->
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- Bean Validation — @Valid on all request bodies -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
+		</dependency>
+		<!-- Health / readiness endpoints for Eureka + monitoring -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
+		<!-- ── MySQL + JPA ─────────────────────────────────────────── -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.mysql</groupId>
+			<artifactId>mysql-connector-j</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<!-- SERVICE DISCOVERY — Eureka Client                          -->
+		<!-- Room service registers with Eureka; called by auth-service  -->
+		<!-- and API Gateway via load-balanced URIs                      -->
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<!-- HTTP CLIENT — calls Auth Service for user validation        -->
+		<!-- e.g. GET /auth/users/{userId} to verify a member exists     -->
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<!-- API DOCUMENTATION — Swagger / OpenAPI 3.0                  -->
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.8.16</version>
+		</dependency>
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<!-- DEVELOPER TOOLS                                             -->
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<!-- TESTING                                                     -->
+		<!-- ═══════════════════════════════════════════════════════════ -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- Pin byte-buddy to match Mockito's test-scope version
+			     Eureka/Feign pulls byte-buddy:runtime which clashes with
+			     byte-buddy-agent:test — pinning prevents MockMaker init failure -->
+			<dependency>
+				<groupId>net.bytebuddy</groupId>
+				<artifactId>byte-buddy</artifactId>
+				<version>1.17.8</version>
+			</dependency>
+			<dependency>
+				<groupId>net.bytebuddy</groupId>
+				<artifactId>byte-buddy-agent</artifactId>
+				<version>1.17.8</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<release>${java.version}</release>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<!-- Surefire: fork=1 so JaCoCo agent is properly injected into the
+			     test JVM. @{argLine} (late-binding) picks up the JaCoCo
+			     -javaagent flag AFTER prepare-agent runs, and correctly handles
+			     Windows paths with spaces (e.g. "C:\Users\Rudra Raj\...").
+			     argLine is quoted so the path survives the fork. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<forkCount>1</forkCount>
+					<reuseForks>true</reuseForks>
+					<argLine>@{argLine} -Xmx512m</argLine>
+				</configuration>
+			</plugin>
+
+			<!-- ── JaCoCo: generates test coverage for SonarQube ── -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<execution>
+						<id>jacoco-prepare-agent</id>
+						<goals><goal>prepare-agent</goal></goals>
+					</execution>
+					<execution>
+						<id>jacoco-report</id>
+						<phase>verify</phase>
+						<goals><goal>report</goal></goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- ── SonarQube Maven Plugin ── -->
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>4.0.0.4121</version>
+			</plugin>
+
+		</plugins>
+	</build>
+</project>

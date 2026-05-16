@@ -1,0 +1,140 @@
+# ── Production overrides for api-gateway ──
+# Overrides Step 17: CORS + JWT secret
+# All backend routes stay on localhost (co-located services on same EC2 instance)
+
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          # ── Global CORS — Step 17 ───────────────────────────────────────────
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns:
+                  - "http://connecthub.duckdns.org"  # EC2 production frontend (DuckDNS)
+                  - "http://localhost:4200"           # keep for local testing
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - PATCH
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders:
+                  - "*"
+                allowCredentials: true
+                maxAge: 3600
+
+      # ── Routes — identical to dev (all internal localhost) ─────────────────
+      routes:
+        - id: auth-docs
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/v3/api-docs
+          filters:
+            - RewritePath=/auth/v3/api-docs, /v3/api-docs
+        - id: room-docs
+          uri: http://localhost:8082
+          predicates:
+            - Path=/rooms/v3/api-docs
+          filters:
+            - RewritePath=/rooms/v3/api-docs, /v3/api-docs
+        - id: message-docs
+          uri: http://localhost:8083
+          predicates:
+            - Path=/messages/v3/api-docs
+          filters:
+            - RewritePath=/messages/v3/api-docs, /v3/api-docs
+        - id: media-docs
+          uri: http://localhost:8084
+          predicates:
+            - Path=/media/v3/api-docs
+          filters:
+            - RewritePath=/media/v3/api-docs, /v3/api-docs
+        - id: presence-docs
+          uri: http://localhost:8085
+          predicates:
+            - Path=/presence/v3/api-docs
+          filters:
+            - RewritePath=/presence/v3/api-docs, /v3/api-docs
+        - id: notification-docs
+          uri: http://localhost:8086
+          predicates:
+            - Path=/notifications/v3/api-docs
+          filters:
+            - RewritePath=/notifications/v3/api-docs, /v3/api-docs
+        - id: payment-docs
+          uri: http://localhost:8088
+          predicates:
+            - Path=/payments/v3/api-docs
+          filters:
+            - RewritePath=/payments/v3/api-docs, /v3/api-docs
+
+        - id: auth-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/**
+        - id: auth-oauth2
+          uri: http://localhost:8081
+          predicates:
+            - Path=/oauth2/**
+        - id: auth-oauth2-callback
+          uri: http://localhost:8081
+          predicates:
+            - Path=/login/oauth2/**
+        - id: room-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/rooms/**
+        - id: message-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/messages/**
+        - id: media-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/media/**
+        - id: presence-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/presence/**
+        - id: notification-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/notifications/**
+        - id: notification-ws
+          uri: ws://localhost:8086
+          predicates:
+            - Path=/ws-notifications/**
+        - id: websocket-handler
+          uri: ws://localhost:8087
+          predicates:
+            - Path=/ws/**
+        - id: payment-service
+          uri: http://localhost:8088
+          predicates:
+            - Path=/payments/**
+
+# JWT — must match auth-service (Step 15 secret)
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+
+# Eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: WARN
+    org.springframework.security: WARN
