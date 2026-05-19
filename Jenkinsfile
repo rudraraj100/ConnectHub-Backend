@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        EC2_HOST      = 'ec2-user@172.31.41.14'
+        EC2_HOST      = 'ec2-user@13.63.37.252'
         SERVICES_DIR  = '/home/connecthub/services'
         KEY_FILE      = 'ec2-prod-ssh-key'
     }
@@ -45,13 +45,14 @@ pipeline {
                     env.BUILD_NOTIFICATION = (changedFiles.contains('notification-service')  || changedFiles == 'all') ? 'true' : 'false'
                     env.BUILD_PAYMENT      = (changedFiles.contains('payment-service')       || changedFiles == 'all') ? 'true' : 'false'
                     env.BUILD_WEBSOCKET    = (changedFiles.contains('websocket-handler')     || changedFiles == 'all') ? 'true' : 'false'
+                    env.BUILD_ADMIN        = (changedFiles.contains('admin-server')            || changedFiles == 'all') ? 'true' : 'false'
 
                     echo """
                     🔍 Build Plan:
                     Registry: ${env.BUILD_REGISTRY}  |  Gateway: ${env.BUILD_GATEWAY}  |  Auth: ${env.BUILD_AUTH}
                     Room: ${env.BUILD_ROOM}  |  Message: ${env.BUILD_MESSAGE}  |  Media: ${env.BUILD_MEDIA}
                     Presence: ${env.BUILD_PRESENCE}  |  Notification: ${env.BUILD_NOTIFICATION}
-                    Payment: ${env.BUILD_PAYMENT}  |  WebSocket: ${env.BUILD_WEBSOCKET}
+                    Payment: ${env.BUILD_PAYMENT}  |  WebSocket: ${env.BUILD_WEBSOCKET}  |  Admin: ${env.BUILD_ADMIN}
                     """
                 }
             }
@@ -99,6 +100,10 @@ pipeline {
                 stage('WebSocket') {
                     when { expression { env.BUILD_WEBSOCKET == 'true' } }
                     steps { dir('websocket-handler') { sh 'mvn clean package -DskipTests -q' } }
+                }
+                stage('Admin') {
+                    when { expression { env.BUILD_ADMIN == 'true' } }
+                    steps { dir('admin-server') { sh 'mvn clean package -DskipTests -q' } }
                 }
             }
         }
@@ -152,6 +157,9 @@ pipeline {
 
                         if (env.BUILD_WEBSOCKET == 'true')
                             deploy('websocket-handler/target/websocket-handler-0.0.1-SNAPSHOT.jar', 'connecthub-websocket')
+
+                        if (env.BUILD_ADMIN == 'true')
+                            deploy('admin-server/target/admin-server-0.0.1-SNAPSHOT.jar', 'connecthub-admin')
                     }
                 }
             }
@@ -164,7 +172,7 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${EC2_HOST} '
                             echo "=== 🏥 ConnectHub Service Health ==="
-                            for s in registry auth gateway room message media presence notification payment websocket; do
+                            for s in registry auth gateway room message media presence notification payment websocket admin; do
                                 STATUS=\$(sudo systemctl is-active connecthub-\$s 2>/dev/null)
                                 if [ "\$STATUS" = "active" ]; then
                                     echo "✅ connecthub-\$s"

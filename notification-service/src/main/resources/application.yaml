@@ -61,6 +61,9 @@ management:
   endpoint:
     health:
       show-details: always
+  health:
+    mail:
+      enabled: false   # Gmail SMTP probe causes DOWN locally — actual sending still works
 
 # App config
 app:

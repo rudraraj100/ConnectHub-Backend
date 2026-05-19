@@ -42,8 +42,7 @@ public class SecurityConfig {
         "/auth/resend-verification",    // resend OTP email — no JWT yet
         "/oauth2/**",
         "/login/oauth2/**",
-        "/actuator/health",
-        "/actuator/info",
+        "/actuator/**",
         "/v3/api-docs/**",
         "/swagger-ui/**",
         "/swagger-ui.html",
